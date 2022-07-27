@@ -33,6 +33,7 @@ add_component :: proc(ctx: ^Context, entity: Entity, component: $T) -> (^T, ECS_
   if has_component(ctx, entity, T) {
     return nil, .ENTITY_ALREADY_HAS_THIS_COMPONENT
   } 
+
   array := cast(^[dynamic]T)ctx.component_map[T].data
   comp_map := &ctx.component_map[T]
   
@@ -57,6 +58,9 @@ has_component :: proc(ctx: ^Context, entity: Entity, $T: typeid) -> bool {
 }
 
 remove_component :: proc(ctx: ^Context, entity: Entity, $T: typeid) -> ECS_Error {
+	if int(entity) < 0{
+		return .ENTITY_DOES_NOT_MAP_TO_ANY_INDEX
+	}
 
   if !has_component(ctx, entity, T) {
     return .ENTITY_DOES_NOT_HAVE_THIS_COMPONENT
@@ -74,7 +78,8 @@ remove_component :: proc(ctx: ^Context, entity: Entity, $T: typeid) -> ECS_Error
 }
 
 get_component :: proc(ctx: ^Context, entity: Entity, $T: typeid) -> (component: ^T, error: ECS_Error) {
-  
+
+	if int(entity) == -1{return nil, .ENTITY_DOES_NOT_MAP_TO_ANY_INDEX}
   if !has_component(ctx, entity, T) {
     return nil, .ENTITY_DOES_NOT_HAVE_THIS_COMPONENT
   }
