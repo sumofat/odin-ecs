@@ -2,6 +2,7 @@ package ecs
 
 import "core:runtime"
 import "core:container/queue"
+import "core:mem"
 
 ECS_Error :: enum {
   NO_ERROR,
@@ -17,10 +18,18 @@ Context :: struct {
   component_map: map[typeid]Component_List,
 }
 
+ecs_arena : mem.Arena
+ecs_allocator : mem.Allocator
+
 init_ecs :: proc() -> (ctx: Context) {
+	bytes,err := mem.alloc_bytes(1024*1024)
+	mem.init_arena(&ecs_arena,bytes)
+
+	ecs_allocator = mem.arena_allocator(&ecs_arena)
+	context.allocator = ecs_allocator
   create_entities :: proc(ctx: ^Context) {
     ctx.entities.entities = make([dynamic]Entity)
-    queue.init(&ctx.entities.available_slots)
+    queue.init(&ctx.entities.available_slots,queue.DEFAULT_CAPACITY,ecs_allocator)
   }
   create_entities(&ctx)
 

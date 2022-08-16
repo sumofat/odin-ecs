@@ -17,7 +17,7 @@ register_component :: proc(ctx: ^Context, $T: typeid) -> ECS_Error {
     return .COMPONENT_IS_ALREADY_REGISTERED
   }
 
-  array := new([dynamic]T)
+  array := new([dynamic]T,ecs_allocator)
   ctx.component_map[T] = {
     type = T,
     data = cast(^runtime.Raw_Dynamic_Array)array,
@@ -28,6 +28,7 @@ register_component :: proc(ctx: ^Context, $T: typeid) -> ECS_Error {
 }
 
 add_component :: proc(ctx: ^Context, entity: Entity, component: $T) -> (^T, ECS_Error) {
+	context.allocator = ecs_allocator
   register_component(ctx, T)
 
   if has_component(ctx, entity, T) {
@@ -96,6 +97,7 @@ get_component :: proc(ctx: ^Context, entity: Entity, $T: typeid) -> (component: 
 
 get_component_list :: proc(ctx: ^Context, $T: typeid) -> (component_list: [dynamic]^T, error: ECS_Error) {
   array := cast(^[dynamic]T)ctx.component_map[T].data
+  context.allocator = ecs_allocator
   component_list = make_dynamic_array([dynamic]^T)
 
   for _, index in ctx.component_map[T].entity_indices {
