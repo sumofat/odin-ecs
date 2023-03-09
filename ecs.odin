@@ -23,7 +23,7 @@ ecs_allocator : mem.Allocator
 
 init_ecs :: proc() -> (ctx: Context) {
 	bytes,err := mem.alloc_bytes(1024*1024)
-	mem.init_arena(&ecs_arena,bytes)
+	mem.arena_init(&ecs_arena,bytes)
 
 	ecs_allocator = mem.arena_allocator(&ecs_arena)
 	context.allocator = ecs_allocator
